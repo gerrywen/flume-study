@@ -7,7 +7,7 @@
     <groupId>com.myflume</groupId>
     <artifactId>flume-study</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <version.flume>1.9.0</version.flume>
@@ -27,6 +27,8 @@
     </dependencies>
 
     <build>
+        <!--    配置jar包名，以及文件路径位置    -->
+        <finalName>wenguoli-${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
