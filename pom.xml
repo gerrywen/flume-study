@@ -15,9 +15,17 @@
 
     <properties>
         <version.flume>1.9.0</version.flume>
+        <version.okhttp>3.6.0</version.okhttp>
+        <version.fastjson>1.2.68</version.fastjson>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.flume</groupId>
             <artifactId>flume-ng-core</artifactId>

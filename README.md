@@ -60,3 +60,12 @@ flume2 和 flume3 需要先启动，flume1 需要连接 flume2 和 flume3，若�
 ```shell script
 curl -X POST -d'[{"headers":{"h1":"v1","h2":"v2","auth":"ccb123456"},"body":"hello body auth token success"}]'  http://localhost:50000
 ```
+
+
+#### 自定义HTTPSourceAuthTokenHandler 和 HTTPSink
+```shell script
+./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-httpsink.conf --name a1 -Dflume.root.logger=INFO,console
+```
+
+ - 参考：[Apache-Flume日志收集+自定义HTTP Sink处理 测试用例搭建](https://blog.csdn.net/kkillala/article/details/82155845)
+
