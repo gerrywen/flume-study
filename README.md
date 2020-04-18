@@ -20,6 +20,11 @@ mvn clean package -Dmaven.test.skip=true
 ./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-myinterceptor.conf --name a1 -Dflume.root.logger=INFO,console
 ```
 
+### 自定义handler
+```shell script
+./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-HTTPSourceXMLHandler.conf --name a1 -Dflume.root.logger=INFO,console
+```
+
 
 ### Flume-自定义 Interceptor（拦截器）
 - 使用 Flume 采集服务器本地日志，需要按照日志类型的不同，将不同种类的日志发往不同的分析系统。
