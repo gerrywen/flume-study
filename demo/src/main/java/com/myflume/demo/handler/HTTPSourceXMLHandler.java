@@ -1,4 +1,4 @@
-package com.myflume.handler;
+package com.myflume.demo.handler;
 
 import com.google.common.base.Preconditions;
 import org.apache.flume.Context;

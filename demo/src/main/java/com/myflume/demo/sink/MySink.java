@@ -1,4 +1,4 @@
-package com.myflume.sink;
+package com.myflume.demo.sink;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;

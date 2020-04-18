@@ -1,4 +1,5 @@
 # flume-study
+## demo
 ### 打包并将jar包放置flume下的bin
 ```shell script
 mvn clean package -Dmaven.test.skip=true
@@ -47,3 +48,15 @@ flume2 和 flume3 需要先启动，flume1 需要连接 flume2 和 flume3，若�
 ```shell script
 ./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-flume1.conf --name a1 -Dflume.root.logger=INFO,console
 ```  
+
+
+
+## http
+#### 自定义HTTPSourceAuthTokenHandler
+```shell script
+./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-HTTPSourceAuthTokenHandler.conf --name a1 -Dflume.root.logger=INFO,console
+```
+
+```shell script
+curl -X POST -d'[{"headers":{"h1":"v1","h2":"v2","auth":"ccb123456"},"body":"hello body auth token success"}]'  http://localhost:50000
+```

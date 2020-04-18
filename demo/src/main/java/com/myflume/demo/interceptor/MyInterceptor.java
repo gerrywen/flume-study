@@ -1,4 +1,4 @@
-package com.myflume.interceptor;
+package com.myflume.demo.interceptor;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
