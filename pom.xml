@@ -10,6 +10,7 @@
     <modules>
         <module>http</module>
         <module>demo</module>
+        <module>flumehttpsink</module>
     </modules>
     <packaging>pom</packaging>
 
