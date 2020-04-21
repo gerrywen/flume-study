@@ -328,7 +328,7 @@ public class HttpRequest {
     public static JSONObject doPostHttps(String urladdress, String postJsonparams, Map<String, String> headparams,
                                          int readTimeout, int conTimeout) {
         JSONObject responseJson = new JSONObject();
-        CloseableHttpClient httpClient = HttpClientFactory.getHttpsClient();
+        CloseableHttpClient httpclient = HttpClientFactory.getHttpsClient();
         // 创建httpPost
         HttpPost httpPost = new HttpPost(urladdress);
         CloseableHttpResponse response = null;
@@ -340,7 +340,7 @@ public class HttpRequest {
 
         try {
 
-            response = httpClient.execute(httpPost);
+            response = httpclient.execute(httpPost);
             StatusLine statusLine = response.getStatusLine();
             int status = statusLine.getStatusCode();
             if (status == HttpStatus.SC_OK) {
@@ -356,25 +356,25 @@ public class HttpRequest {
                 return null;
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.info(e.toString());
         } catch (UnknownHostException e) {
             responseJson.put("content", e.toString());
             responseJson.put("code", 500);
-            e.printStackTrace();
+            logger.info(e.toString());
         } catch (SocketTimeoutException | ConnectException | UnsupportedEncodingException e) {
             responseJson.put("content", e.toString());
             responseJson.put("code", 408);
-            e.printStackTrace();
+            logger.info(e.toString());
         } catch (IOException e) {
             responseJson.put("content", e.toString());
             responseJson.put("code", 400);
-            e.printStackTrace();
+            logger.info(e.toString());
         } finally {
             if (response != null) {
                 try {
                     response.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.info(e.toString());
                 }
             }
         }
@@ -384,8 +384,12 @@ public class HttpRequest {
 
     public static JSONObject doPostHttps(String urladdress, byte[] payloadByteArray, Map<String, String> headparams,
                                          int readTimeout, int conTimeout) {
+        PrintWriter out = null;
+        BufferedReader in = null;
+        String result = "";
+
         JSONObject responseJson = new JSONObject();
-        CloseableHttpClient httpClient = HttpClientFactory.getHttpsClient();
+        CloseableHttpClient httpclient = HttpClientFactory.getHttpsClient();
         // 创建httpPost
         HttpPost httpPost = new HttpPost(urladdress);
         CloseableHttpResponse response = null;
@@ -398,10 +402,10 @@ public class HttpRequest {
 
         try {
 
-            response = httpClient.execute(httpPost);
+            response = httpclient.execute(httpPost);
             StatusLine statusLine = response.getStatusLine();
-            int status = statusLine.getStatusCode();
-            if (status == HttpStatus.SC_OK) {
+            int state = statusLine.getStatusCode();
+            if (state == HttpStatus.SC_OK) {
                 HttpEntity responseEntity = response.getEntity();
                 String jsonString = EntityUtils.toString(responseEntity);
                 logger.info("responseEntity >>> " + jsonString);
@@ -413,29 +417,29 @@ public class HttpRequest {
                 String jsonString = EntityUtils.toString(responseEntity);
                 logger.info("responseEntity >>> " + jsonString);
                 responseJson.put("content", jsonString);
-                responseJson.put("code", status);
+                responseJson.put("code", state);
                 return null;
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.info(e.toString());
         } catch (UnknownHostException e) {
             responseJson.put("content", e.toString());
             responseJson.put("code", 500);
-            e.printStackTrace();
+            logger.info(e.toString());
         } catch (SocketTimeoutException | ConnectException | UnsupportedEncodingException e) {
             responseJson.put("content", e.toString());
             responseJson.put("code", 408);
-            e.printStackTrace();
+            logger.info(e.toString());
         } catch (IOException e) {
             responseJson.put("content", e.toString());
             responseJson.put("code", 400);
-            e.printStackTrace();
+            logger.info(e.toString());
         } finally {
             if (response != null) {
                 try {
                     response.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.info(e.toString());
                 }
             }
         }

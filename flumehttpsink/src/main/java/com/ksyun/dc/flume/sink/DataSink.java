@@ -3,7 +3,10 @@ package com.ksyun.dc.flume.sink;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ksyun.dc.flume.counter.HttpSinkCounter;
+import com.ksyun.dc.flume.utils.Header;
+import com.ksyun.dc.flume.utils.HostUtils;
 import com.ksyun.dc.flume.utils.HttpRequest;
+import com.ksyun.dc.flume.utils.NetworkAuthHeaderUtil;
 import com.ksyun.dc.flume.utils.SecurityUtil;
 import com.ksyun.dc.flume.utils.TimeUtils;
 import net.sf.json.JSONObject;
@@ -26,11 +29,12 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import sun.misc.BASE64Encoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +51,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
+
+import static com.ksyun.dc.flume.utils.Base64Util.encode;
 
 /**
  * program: flume-study->DataSink
@@ -430,7 +436,7 @@ public class DataSink extends AbstractSink implements Configurable {
                 String sendStr = objectMapper.writeValueAsString(takeEventList);
                 logger.info("sendStr>>>>>>>>>>>>>" + sendStr);
                 logger.info("appName" + this.appName);
-                Map<Object, Object> headerParams = new HashMap<>();
+                Map headerParams = new HashMap<>();
                 ByteArrayOutputStream originalContent = new ByteArrayOutputStream();
                 originalContent.write(sendStr.getBytes(StandardCharsets.UTF_8));
 
@@ -453,6 +459,73 @@ public class DataSink extends AbstractSink implements Configurable {
                 parameters.put("AccountId", Lists.newArrayList("111"));
                 parameters.put("tenantId", Lists.newArrayList(tenantId));
                 Map<String, String> headers = new HashMap<>();
+                List<Header> headerList = NetworkAuthHeaderUtil.getAuthHeaderForJson(hostUri, parameters, payloadByteArray, HttpMethod.POST, headers, service, region, principalkey, principalPassword);
+
+                logger.info("headerList:" + headerList.toString());
+
+                for (int i = 0; i < headerList.size(); i++) {
+                    headerParams.put(headerList.get(i).getName(), headerList.get(i).getValue());
+                }
+                headerParams.put("tenantId", this.tenantId);
+                headerParams.put("userId", this.userId);
+                headerParams.put("projectId", this.projectId);
+                headerParams.put("env", this.env);
+                headerParams.put("topicName", this.topicName);
+                headerParams.put("errTopicName", this.errTopicName);
+                headerParams.put("ownerProjectId", this.ownerProjectId);
+                headerParams.put("errOwnerProjectId", this.errOwnerProjectId);
+                headerParams.put("kafkaSourceId", this.kafkaSourceId);
+                BASE64Encoder encoder = new BASE64Encoder();
+                byte[] textByte = this.appName.getBytes(StandardCharsets.UTF_8);
+                String encodedText = encoder.encode(textByte);
+
+                headerParams.put("appName", encode(this.appName));
+                headerParams.put("requestMethod", this.requestMethod);
+                headerParams.put("projectName", encode(this.projectName));
+                headerParams.put("ip", HostUtils.getLocalIP());
+                headerParams.put("appId", this.appId);
+                headerParams.put("checkTopicSchema", this.checkTopicSchema.toString());
+
+                Integer statusCode = null;
+                JSONObject responseJson = null;
+                long startTime = System.nanoTime();
+
+                responseJson = doHttpPost(this.comresssEanble, url, sendStr, payloadByteArray, headerParams, this.sendTimeout, this.connectTimeout, this.needEliminateDuplication);
+                logger.info("responseJson:" + responseJson);
+                if (responseJson.size() > 0) {
+                    sendResult = responseJson.getString("content");
+                    statusCode = Integer.valueOf(responseJson.getInt("code"));
+                    long endTime = System.nanoTime();
+                    this.counter.addToHttpEventSendTimer((endTime - startTime) / 1000000L);
+                    this.counter.incrementConnectionCreatedCount();
+                }
+                this.counter.addToEventDrainAttemptCount(takedEventSize);
+
+                if ((statusCode == null) || (statusCode.intValue() != 200)) {
+                    logger.info("send_failed," + statusCode + ":" + sendResult + ">>");
+                    transaction.commit();
+                    if (isUnknownHostException(responseJson)) {
+                        processUnkownHostException();
+                    } else {
+                        url = this.onlineUrl;
+                        this.isOnlineUrl = true;
+                        changeUrlStartTime = Long.valueOf(0L);
+                    }
+                    this.counter.incrementConnectionFailedCount();
+                    this.counter.incrementRollbackCount();
+                } else {
+                    transaction.commit();
+                    this.counter.addToEventDrainSuccessCount(takedEventSize);
+                    if ((!this.isOnlineUrl) && (isChangeUrlTimeout())) {
+                        url = this.onlineUrl;
+                        logger.info("httpsink url change to online url: " + url);
+                        this.isOnlineUrl = true;
+                        changeUrlStartTime = Long.valueOf(0L);
+                    }
+                    if (Long.valueOf(takedEventBytes) != 0) {
+                        logger.info("success to send , bytes:{}", Long.valueOf(takedEventBytes));
+                    }
+                }
 
             }
 
