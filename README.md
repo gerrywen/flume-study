@@ -4,11 +4,21 @@
 ```shell script
 mvn clean package -Dmaven.test.skip=true
 ```
+### 本地环境路径
+/usr/local/Cellar/flume/1.9.0/libexec
+/Users/gerry/Desktop/skyon/ccb/OGGdata
+/opt/flume/wenguoli
+
 
 
 ### 自定义Source
 ```shell script
 ./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-mysource.conf --name a1 -Dflume.root.logger=INFO,console
+```
+
+### 自定义OggTaildirSource
+```shell script
+./bin/flume-ng agent --conf conf --conf-file conf/wenguoli/flume-study-TailDirSource.conf --name a1 -Dflume.root.logger=INFO,console
 ```
 
 ### 自定义sink

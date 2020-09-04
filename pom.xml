@@ -37,6 +37,12 @@
             <artifactId>flume-ng-configuration</artifactId>
             <version>${version.flume}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.flume.flume-ng-sources/flume-taildir-source -->
+        <dependency>
+            <groupId>org.apache.flume.flume-ng-sources</groupId>
+            <artifactId>flume-taildir-source</artifactId>
+            <version>${version.flume}</version>
+        </dependency>
     </dependencies>
 
 <!--    <build>-->
